@@ -1,0 +1,17 @@
+# Güvenlik ve Kimlik Bilgileri (BUNLAR ASLA GITHUB'A YÜKLENMEMELİDİR!)
+.env
+credentials.json
+token.json
+
+# İndirilen Videolar
+downloads/
+
+# Python Sanal Ortam (Virtual Environment) Dosyaları
+venv/
+env/
+ENV/
+
+# Python Önbellek Dosyaları
+__pycache__/
+*.py[cod]
+*$py.class

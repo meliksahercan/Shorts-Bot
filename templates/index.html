@@ -1,0 +1,323 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Shorts Automation Bot</title>
+    <!-- Google Fonts: Modern sans-serif -->
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --bg-color: #0f172a;
+            --glass-bg: rgba(30, 41, 59, 0.7);
+            --glass-border: rgba(255, 255, 255, 0.1);
+            --primary: #8b5cf6;
+            --primary-hover: #7c3aed;
+            --text-main: #f8fafc;
+            --text-muted: #94a3b8;
+        }
+
+        body {
+            margin: 0;
+            padding: 0;
+            font-family: 'Outfit', sans-serif;
+            background: var(--bg-color);
+            color: var(--text-main);
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            /* Premium gradient mesh background */
+            background-image: 
+                radial-gradient(at 0% 0%, rgba(139, 92, 246, 0.15) 0px, transparent 50%),
+                radial-gradient(at 100% 100%, rgba(16, 185, 129, 0.15) 0px, transparent 50%);
+            background-attachment: fixed;
+        }
+
+        .container {
+            width: 100%;
+            max-width: 600px;
+            padding: 2rem;
+        }
+
+        /* Glassmorphism Panel */
+        .glass-panel {
+            background: var(--glass-bg);
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+            border: 1px solid var(--glass-border);
+            border-radius: 24px;
+            padding: 2.5rem;
+            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25);
+        }
+
+        h1 {
+            margin: 0 0 1.5rem 0;
+            font-size: 2rem;
+            font-weight: 700;
+            background: linear-gradient(135deg, #a78bfa, #8b5cf6);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            text-align: center;
+        }
+
+        .form-group {
+            margin-bottom: 1.5rem;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 0.5rem;
+            font-size: 0.9rem;
+            color: var(--text-muted);
+            font-weight: 600;
+        }
+
+        input, textarea, select {
+            width: 100%;
+            padding: 0.875rem 1rem;
+            background: rgba(15, 23, 42, 0.6);
+            border: 1px solid var(--glass-border);
+            border-radius: 12px;
+            color: var(--text-main);
+            font-family: inherit;
+            font-size: 1rem;
+            transition: all 0.3s ease;
+            box-sizing: border-box;
+        }
+
+        input:focus, textarea:focus, select:focus {
+            outline: none;
+            border-color: var(--primary);
+            box-shadow: 0 0 0 3px rgba(139, 92, 246, 0.2);
+        }
+
+        textarea {
+            resize: vertical;
+            min-height: 100px;
+        }
+
+        /* Dark mode select dropdown fix */
+        select option {
+            background-color: var(--bg-color);
+            color: var(--text-main);
+        }
+
+        button {
+            width: 100%;
+            padding: 1rem;
+            background: var(--primary);
+            color: white;
+            border: none;
+            border-radius: 12px;
+            font-size: 1.1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-family: inherit;
+        }
+
+        button:hover {
+            background: var(--primary-hover);
+            transform: translateY(-2px);
+        }
+        
+        button:disabled {
+            background: #475569;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        /* Status & Logs UI */
+        .status-card {
+            margin-top: 2rem;
+            padding: 1.5rem;
+            border-radius: 16px;
+            background: rgba(15, 23, 42, 0.8);
+            border: 1px solid var(--glass-border);
+            display: none;
+        }
+
+        .status-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 1rem;
+        }
+
+        .status-title {
+            font-weight: 600;
+            font-size: 1.1rem;
+        }
+
+        .status-badge {
+            padding: 0.25rem 0.75rem;
+            border-radius: 9999px;
+            font-size: 0.85rem;
+            font-weight: 700;
+            letter-spacing: 0.05em;
+        }
+
+        /* Dynamic badge colors */
+        .badge-pending { background: rgba(148, 163, 184, 0.2); color: #cbd5e1; }
+        .badge-downloading { background: rgba(56, 189, 248, 0.2); color: #7dd3fc; }
+        .badge-downloaded { background: rgba(99, 102, 241, 0.2); color: #a5b4fc; }
+        .badge-uploading { background: rgba(139, 92, 246, 0.2); color: #c4b5fd; }
+        .badge-uploaded { background: rgba(16, 185, 129, 0.2); color: #6ee7b7; }
+        .badge-failed { background: rgba(239, 68, 68, 0.2); color: #fca5a5; }
+
+        .log-area {
+            font-family: 'Consolas', monospace;
+            font-size: 0.9rem;
+            color: #cbd5e1;
+            white-space: pre-wrap;
+            line-height: 1.5;
+        }
+
+        .spinner {
+            animation: spin 1s linear infinite;
+            display: inline-block;
+            margin-right: 8px;
+        }
+
+        @keyframes spin {
+            100% { transform: rotate(360deg); }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="glass-panel">
+            <h1>Shorts Automation Bot</h1>
+            
+            <form id="uploadForm">
+                <div class="form-group">
+                    <label for="sourceUrl">YouTube Shorts URL</label>
+                    <input type="url" id="sourceUrl" placeholder="https://youtube.com/shorts/..." required>
+                </div>
+
+                <div class="form-group">
+                    <label for="videoTitle">Video Başlığı (Title)</label>
+                    <input type="text" id="videoTitle" placeholder="Harika Bir Python Otomasyonu! #shorts" required>
+                </div>
+
+                <div class="form-group">
+                    <label for="videoDesc">Video Açıklaması (Description)</label>
+                    <textarea id="videoDesc" placeholder="Abone olmayı unutmayın! #yazılım #bot"></textarea>
+                </div>
+
+                <div class="form-group">
+                    <label for="privacyStatus">Gizlilik Durumu</label>
+                    <select id="privacyStatus">
+                        <option value="private">Private (Gizli)</option>
+                        <option value="unlisted">Unlisted (Liste Dışı)</option>
+                        <option value="public">Public (Herkese Açık)</option>
+                    </select>
+                </div>
+
+                <button type="submit" id="submitBtn">Otomasyonu Başlat</button>
+            </form>
+
+            <div class="status-card" id="statusCard">
+                <div class="status-header">
+                    <div class="status-title">İşlem Durumu</div>
+                    <div class="status-badge badge-pending" id="statusBadge">PENDING</div>
+                </div>
+                <div class="log-area" id="logArea">Başlatılıyor...</div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const form = document.getElementById('uploadForm');
+        const submitBtn = document.getElementById('submitBtn');
+        const statusCard = document.getElementById('statusCard');
+        const statusBadge = document.getElementById('statusBadge');
+        const logArea = document.getElementById('logArea');
+        let statusInterval;
+
+        form.addEventListener('submit', async (e) => {
+            e.preventDefault();
+            
+            const sourceUrl = document.getElementById('sourceUrl').value;
+            const title = document.getElementById('videoTitle').value;
+            const description = document.getElementById('videoDesc').value;
+            const privacyStatus = document.getElementById('privacyStatus').value;
+
+            // UI'ı işlem moduna geçir
+            submitBtn.disabled = true;
+            submitBtn.innerHTML = '<span class="spinner">↻</span> İşleniyor...';
+            statusCard.style.display = 'block';
+            updateBadge('PENDING');
+            logArea.innerText = 'Arkaplan işlemi başlatılıyor... Lütfen tarayıcıyı kapatmayın.';
+
+            try {
+                const response = await fetch('/api/upload', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        source_url: sourceUrl,
+                        title: title,
+                        description: description,
+                        privacy_status: privacyStatus
+                    })
+                });
+                
+                const data = await response.json();
+                
+                if (response.ok) {
+                    // İşlem kabul edildi, periyodik durum sorgulaması başlat (2 saniyede bir)
+                    startStatusPolling(sourceUrl);
+                } else {
+                    updateBadge('FAILED');
+                    logArea.innerText = 'Hata: ' + (data.error || data.message);
+                    resetBtn();
+                }
+            } catch (err) {
+                updateBadge('FAILED');
+                logArea.innerText = 'Ağ Hatası: ' + err.message;
+                resetBtn();
+            }
+        });
+
+        function updateBadge(status) {
+            statusBadge.className = 'status-badge badge-' + status.toLowerCase();
+            statusBadge.innerText = status;
+        }
+
+        function resetBtn() {
+            submitBtn.disabled = false;
+            submitBtn.innerHTML = 'Otomasyonu Başlat';
+        }
+
+        function startStatusPolling(sourceUrl) {
+            if (statusInterval) clearInterval(statusInterval);
+            
+            statusInterval = setInterval(async () => {
+                try {
+                    const response = await fetch(`/api/status?source_url=${encodeURIComponent(sourceUrl)}`);
+                    const data = await response.json();
+                    
+                    if (data.status) {
+                        updateBadge(data.status);
+                        
+                        if (data.status === 'FAILED') {
+                            logArea.innerText = 'İşlem Başarısız Oldu!\n\nHata: ' + (data.error_message || 'Bilinmeyen Hata');
+                            clearInterval(statusInterval);
+                            resetBtn();
+                        } else if (data.status === 'UPLOADED') {
+                            logArea.innerHTML = `İşlem Başarıyla Tamamlandı! ✨\n\nMetadata temizlendi ve video yüklendi.\nYouTube Video ID: <strong>${data.youtube_video_id}</strong>\n\nArtık yeni bir video linki girebilirsiniz.`;
+                            clearInterval(statusInterval);
+                            resetBtn();
+                        } else {
+                            logArea.innerText = `Güncel aşama: ${data.status}...\n(Arkaplanda devam ediyor)`;
+                        }
+                    }
+                } catch (err) {
+                    console.error('Durum sorgulanırken hata:', err);
+                }
+            }, 2000); // Her 2 saniyede bir kontrol et
+        }
+    </script>
+</body>
+</html>

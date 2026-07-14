@@ -1,4 +1,4 @@
-# 🚀 YouTube Shorts Automation Bot
+# 🚀 Shorts Automation Bot
 
 This project is a powerful, local Python automation bot designed to automatically download YouTube Shorts videos at the highest quality, clear their metadata, and upload them to your own YouTube channel via the YouTube Data API v3. 
 
